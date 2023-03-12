@@ -168,6 +168,9 @@ fun EnterTopicScreen(
                         unfocusedBorderColor = MaterialTheme.colorScheme.primary.copy(
                             alpha = 0.3f,
                         ),
+                        disabledBorderColor = MaterialTheme.colorScheme.primary.copy(
+                            alpha = 0.1f,
+                        ),
                     ),
                     enabled = !loading,
                     keyboardOptions = KeyboardOptions(
