@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "210707563281",
+    "project_id": "factsai",
+    "storage_bucket": "factsai.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:210707563281:android:62cd18f3203a7f4a8882b0",
+        "android_client_info": {
+          "package_name": "io.github.horaciocome1.factsai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "210707563281-upc7utuehbmgdo4f136hkmk4efhffful.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.github.horaciocome1.factsai",
+            "certificate_hash": "dbc7598edabede07de359d5277aef142f0a3848b"
+          }
+        },
+        {
+          "client_id": "210707563281-jtnhuj0sj466rgvusoh7bls6tra1bvdl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHNgMX4VEglS173O8RgUyiytf1O87UeiM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "210707563281-jtnhuj0sj466rgvusoh7bls6tra1bvdl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
