@@ -8,7 +8,7 @@ interface Api {
 
     suspend fun registerInstallation(installationId: String): Result
 
-    suspend fun generateFacts(installationId: String, topic: String, count: Int, temperature: Float): Result
+    suspend fun generateFacts(installationId: String, topic: String, languageTag: String, count: Int, temperature: Float): Result
 
     sealed interface Result {
         data class Failure(val errorMessage: String) : Result

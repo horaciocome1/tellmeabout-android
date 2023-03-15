@@ -3,6 +3,7 @@ package io.github.horaciocome1.factsai.ui.screens
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -64,7 +65,7 @@ class EnterTopicScreenViewModel @Inject constructor(
                 return@launch
             }
 
-            when (val result = api.generateFacts(installationId, topic, 4, 0f)) {
+            when (val result = api.generateFacts(installationId, topic, Locale.current.toLanguageTag(), 4, 0f)) {
                 is Api.Result.Failure -> {
                     Timber.e("generateFacts error message=${result.errorMessage}")
                     _error.value = true

@@ -1,5 +1,6 @@
 package io.github.horaciocome1.factsai.ui.screens
 
+import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -56,7 +57,7 @@ class FactsViewModel @Inject constructor(
                     return@launch
                 }
 
-                api.generateFacts(installationId, topic, 20, 0.6f)
+                api.generateFacts(installationId, topic, Locale.current.toLanguageTag(), 20, 0.6f)
                 _loading.value = false
             }
         }

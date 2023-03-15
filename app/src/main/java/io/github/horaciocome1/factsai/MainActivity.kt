@@ -10,9 +10,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.firebase.auth.FirebaseAuth
 import com.ramcosta.composedestinations.DestinationsNavHost
@@ -21,6 +19,7 @@ import io.github.horaciocome1.factsai.data.Api
 import io.github.horaciocome1.factsai.data.PreferencesHelper
 import io.github.horaciocome1.factsai.ui.screens.NavGraphs
 import io.github.horaciocome1.factsai.ui.theme.FactsAITheme
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
@@ -42,6 +41,8 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var api: Api
+
+    private var checkInstallationJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,10 +74,9 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                checkInstallation()
-            }
+        checkInstallationJob?.cancel()
+        checkInstallationJob = lifecycleScope.launch {
+            checkInstallation()
         }
     }
 

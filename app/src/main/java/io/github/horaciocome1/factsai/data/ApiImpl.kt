@@ -41,13 +41,14 @@ class ApiImpl @Inject constructor(
         return Api.Result.Success(Unit)
     }
 
-    override suspend fun generateFacts(installationId: String, topic: String, count: Int, temperature: Float): Api.Result {
-        Timber.v("generateFacts installationId=$installationId topic=$topic count=$count temperature=$temperature")
+    override suspend fun generateFacts(installationId: String, topic: String, languageTag: String, count: Int, temperature: Float): Api.Result {
+        Timber.v("generateFacts installationId=$installationId topic=$topic languageTag=$languageTag count=$count temperature=$temperature")
         val result = withContext(coroutineContext) {
             try {
                 val data = mapOf(
                     "topic" to topic,
                     "installationId" to "installationId",
+                    "languageTag" to languageTag,
                     "count" to count,
                     "temperature" to temperature,
                 )

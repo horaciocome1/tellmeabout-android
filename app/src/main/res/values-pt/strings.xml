@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enter_a_topic_to_get_started">Comece com um tópico.</string>
+    <string name="for_example">Por exemplo</string>
+    <string name="cats">gatinhos</string>
+    <string name="or">ou</string>
+    <string name="african_families">mundo luso</string>
+    <string name="get_started">Iniciar</string>
+    <string name="tell_me_about">Fale-me\nsobre…</string>
+</resources>

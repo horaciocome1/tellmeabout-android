@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">FactsAI</string>
+    <string name="app_name" translatable="false">Tellmeabout</string>
+    <string name="tell_me_about">Tell me\nabout…</string>
+    <string name="enter_a_topic_to_get_started">Enter a topic to get started.</string>
+    <string name="for_example">For example</string>
+    <string name="cats">cats</string>
+    <string name="or">or</string>
+    <string name="african_families">african families</string>
+    <string name="get_started">Get Started</string>
 </resources>
