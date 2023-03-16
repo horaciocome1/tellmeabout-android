@@ -11,6 +11,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.github.horaciocome1.factsai.data.Api
 import io.github.horaciocome1.factsai.data.ApiImpl
+import io.github.horaciocome1.factsai.data.AuthController
+import io.github.horaciocome1.factsai.data.AuthControllerImpl
 import io.github.horaciocome1.factsai.data.PreferencesHelper
 import io.github.horaciocome1.factsai.data.PreferencesHelperImpl
 import kotlinx.coroutines.Dispatchers
@@ -41,5 +43,9 @@ object FactsAiModule {
 
     @Provides
     @Singleton
-    fun provideAuth(): FirebaseAuth = Firebase.auth
+    fun provideAuth(): FirebaseAuth = Firebase.auth.apply { useAppLanguage() }
+
+    @Provides
+    @Singleton
+    fun provideAuthController(impl: AuthControllerImpl): AuthController = impl
 }
