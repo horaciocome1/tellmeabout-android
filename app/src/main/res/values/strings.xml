@@ -9,8 +9,8 @@
     <string name="get_started">Get Started</string>
     <string name="otp_verification">OTP\nverification</string>
     <string name="enter_mobile_number">Enter mobile number. We will send you a one-time password to this number. Please include country code.</string>
-    <string name="country_code_mozambique">+258</string>
-    <string name="fake_number_mozambique">840011223</string>
+    <string name="country_code_mozambique" translatable="false">+258</string>
+    <string name="fake_number_mozambique" translatable="false">840011223</string>
     <string name="get_otp">Get OTP</string>
     <string name="verify_otp">Verify OTP</string>
     <string name="enter_otp_sent_to">Enter the OTP sent to</string>
