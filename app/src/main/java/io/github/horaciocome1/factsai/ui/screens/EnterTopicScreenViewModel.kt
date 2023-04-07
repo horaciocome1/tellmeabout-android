@@ -8,11 +8,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.horaciocome1.factsai.data.Api
+import io.github.horaciocome1.factsai.data.AuthController
 import io.github.horaciocome1.factsai.data.PreferencesHelper
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -21,6 +24,7 @@ import javax.inject.Inject
 class EnterTopicScreenViewModel @Inject constructor(
     private val api: Api,
     private val preferencesHelper: PreferencesHelper,
+    authController: AuthController,
 ) : ViewModel() {
 
     companion object {
@@ -38,6 +42,8 @@ class EnterTopicScreenViewModel @Inject constructor(
 
     private val _factsGenerated = MutableSharedFlow<Boolean>()
     val factsGenerated = _factsGenerated.asSharedFlow()
+
+    val userSignedIn = authController.signedIn.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
     init {
         Timber.i("init")
