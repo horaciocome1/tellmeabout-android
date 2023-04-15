@@ -7,6 +7,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('google-play-open.jks')
+            storePassword ''
+            keyAlias 'leiloa'
+            keyPassword ''
+        }
+    }
     namespace 'io.github.horaciocome1.factsai'
     compileSdk 33
 
@@ -14,8 +22,8 @@ android {
         applicationId "io.github.horaciocome1.factsai"
         minSdk 24
         targetSdk 33
-        versionCode 1
-        versionName "0.0.1-alpha01"
+        versionCode 2
+        versionName "0.0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -34,14 +42,15 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
     buildFeatures {
         compose true
@@ -65,10 +74,10 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
     implementation 'androidx.activity:activity-compose:1.7.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.6.1'
-    implementation "com.google.dagger:hilt-android:2.44"
+    implementation 'com.google.dagger:hilt-android:2.45'
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    kapt "com.google.dagger:hilt-android-compiler:2.44"
+    kapt 'com.google.dagger:hilt-android-compiler:2.45'
     implementation 'androidx.security:security-crypto-ktx:1.1.0-alpha05'
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
@@ -76,10 +85,11 @@ dependencies {
     implementation "androidx.compose.foundation:foundation:$compose_version"
     implementation "io.github.raamcosta.compose-destinations:core:$compose_destinations"
     ksp "io.github.raamcosta.compose-destinations:ksp:$compose_destinations"
-    implementation "com.google.accompanist:accompanist-systemuicontroller:0.29.2-rc"
-    implementation "com.google.firebase:firebase-analytics-ktx:21.2.1"
+    implementation 'com.google.accompanist:accompanist-systemuicontroller:0.31.0-alpha'
+    implementation "com.google.firebase:firebase-analytics-ktx:21.2.2"
+    implementation 'com.google.firebase:firebase-appcheck-playintegrity:16.1.2'
     implementation 'com.google.firebase:firebase-functions-ktx:20.2.2'
-    implementation 'com.google.firebase:firebase-auth-ktx:21.2.0'
+    implementation 'com.google.firebase:firebase-auth-ktx:21.3.0'
     implementation 'com.jakewharton.timber:timber:5.0.1'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
