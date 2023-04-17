@@ -7,8 +7,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.horaciocome1.factsai.data.Api
 import io.github.horaciocome1.factsai.data.PreferencesHelper
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -26,6 +29,9 @@ class FactsViewModel @Inject constructor(
     private val _loading = MutableStateFlow(false)
     val loading = _loading.asStateFlow()
 
+    private val _jumpToIndex = MutableSharedFlow<Int>(replay = 1)
+    val jumpToIndex = _jumpToIndex.asSharedFlow()
+
     var lastIndexBeforeNextGeneration: Int? = null
         private set
 
@@ -34,9 +40,13 @@ class FactsViewModel @Inject constructor(
     init {
         Timber.i("init")
         viewModelScope.launch {
-            api.facts.collect { newFacts ->
+            api.facts.collectLatest { (newFacts, newTopic) ->
+                val currentLastIndex = _facts.value.lastIndex
                 _facts.update { currentState ->
                     currentState + newFacts
+                }
+                if (newTopic) {
+                    _jumpToIndex.emit(value = currentLastIndex + 1)
                 }
             }
         }

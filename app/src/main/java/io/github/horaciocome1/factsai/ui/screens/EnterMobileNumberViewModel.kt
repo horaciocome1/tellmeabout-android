@@ -74,6 +74,9 @@ class EnterMobileNumberViewModel @Inject constructor(
             return
         }
         this.mobileNumber = mobileNumber
+        viewModelScope.launch {
+            _error.emit(false to "")
+        }
     }
 
     fun sendVerificationCode(activity: Activity) {

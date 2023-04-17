@@ -1,6 +1,7 @@
 package io.github.horaciocome1.factsai.ui.screens
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,6 +11,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -53,6 +56,9 @@ class EnterOtpViewModel @Inject constructor(
                 }
             }
         }
+        combine(flows = digits.map { snapshotFlow { it.value } }) {
+            _error.value = false to ""
+        }.launchIn(viewModelScope)
     }
 
     fun validateCode() {

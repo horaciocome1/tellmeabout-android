@@ -40,6 +40,9 @@ import io.github.horaciocome1.factsai.R
 import io.github.horaciocome1.factsai.ui.components.Background
 import io.github.horaciocome1.factsai.ui.screens.destinations.EnterOtpScreenDestination
 import io.github.horaciocome1.factsai.ui.theme.FactsAITheme
+import io.github.horaciocome1.factsai.util.Constants.DisabledAlpha
+import io.github.horaciocome1.factsai.util.Constants.FocusedAlpha
+import io.github.horaciocome1.factsai.util.Constants.UnfocusedAlpha
 import io.github.horaciocome1.factsai.util.FakeDestinationsNavigator
 
 @Destination
@@ -95,7 +98,7 @@ fun EnterMobileNumberScreen(
                         withStyle(
                             style = SpanStyle(
                                 color = MaterialTheme.colorScheme.primary.copy(
-                                    alpha = 0.5f,
+                                    alpha = FocusedAlpha,
                                 ),
                             ),
                         ) {
@@ -109,11 +112,11 @@ fun EnterMobileNumberScreen(
                         style = MaterialTheme.typography.labelLarge.copy(
                             color = if (error.first) {
                                 MaterialTheme.colorScheme.error.copy(
-                                    alpha = 0.7f,
+                                    alpha = FocusedAlpha,
                                 )
                             } else {
                                 MaterialTheme.colorScheme.primary.copy(
-                                    alpha = 0.3f,
+                                    alpha = UnfocusedAlpha,
                                 )
                             },
                         ),
@@ -125,10 +128,10 @@ fun EnterMobileNumberScreen(
                 shape = MaterialTheme.shapes.small,
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = MaterialTheme.colorScheme.primary.copy(
-                        alpha = 0.3f,
+                        alpha = UnfocusedAlpha,
                     ),
                     disabledBorderColor = MaterialTheme.colorScheme.primary.copy(
-                        alpha = 0.1f,
+                        alpha = DisabledAlpha,
                     ),
                 ),
                 enabled = !loading,

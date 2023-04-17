@@ -22,8 +22,8 @@ android {
         applicationId "io.github.horaciocome1.factsai"
         minSdk 24
         targetSdk 33
-        versionCode 2
-        versionName "0.0.1"
+        versionCode 4
+        versionName "0.0.3.202304.17b"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -37,8 +37,11 @@ android {
         debug {
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
+            resValue "string", "app_name", "Tellmeabout (debug)"
         }
         release {
+            resValue "string", "app_name", "Tellmeabout"
+
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

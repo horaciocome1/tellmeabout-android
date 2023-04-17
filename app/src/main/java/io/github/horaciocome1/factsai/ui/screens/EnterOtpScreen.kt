@@ -43,8 +43,11 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import io.github.horaciocome1.factsai.R
 import io.github.horaciocome1.factsai.ui.components.Background
-import io.github.horaciocome1.factsai.ui.screens.destinations.EnterTopicScreenDestination
+import io.github.horaciocome1.factsai.ui.screens.destinations.HomeScreenDestination
 import io.github.horaciocome1.factsai.ui.theme.FactsAITheme
+import io.github.horaciocome1.factsai.util.Constants.DisabledAlpha
+import io.github.horaciocome1.factsai.util.Constants.FocusedAlpha
+import io.github.horaciocome1.factsai.util.Constants.UnfocusedAlpha
 import io.github.horaciocome1.factsai.util.FakeDestinationsNavigator
 
 @Destination
@@ -65,7 +68,7 @@ fun EnterOtpScreen(
 
     LaunchedEffect(codeValidated) {
         if (codeValidated) {
-            navigator.popBackStack(EnterTopicScreenDestination.route, inclusive = false)
+            navigator.popBackStack(HomeScreenDestination.route, inclusive = false)
         }
     }
 
@@ -109,10 +112,10 @@ fun EnterOtpScreen(
                         shape = MaterialTheme.shapes.small,
                         colors = OutlinedTextFieldDefaults.colors(
                             unfocusedBorderColor = MaterialTheme.colorScheme.primary.copy(
-                                alpha = 0.3f,
+                                alpha = UnfocusedAlpha,
                             ),
                             disabledBorderColor = MaterialTheme.colorScheme.primary.copy(
-                                alpha = 0.1f,
+                                alpha = DisabledAlpha,
                             ),
                         ),
                         enabled = !loading,
@@ -148,11 +151,11 @@ fun EnterOtpScreen(
                         style = SpanStyle(
                             color = if (error.first) {
                                 MaterialTheme.colorScheme.error.copy(
-                                    alpha = 0.7f,
+                                    alpha = FocusedAlpha,
                                 )
                             } else {
                                 MaterialTheme.colorScheme.primary.copy(
-                                    alpha = 0.5f,
+                                    alpha = FocusedAlpha,
                                 )
                             },
                         ),
@@ -164,11 +167,11 @@ fun EnterOtpScreen(
                 style = MaterialTheme.typography.labelLarge.copy(
                     color = if (error.first) {
                         MaterialTheme.colorScheme.error.copy(
-                            alpha = 0.5f,
+                            alpha = FocusedAlpha,
                         )
                     } else {
                         MaterialTheme.colorScheme.primary.copy(
-                            alpha = 0.3f,
+                            alpha = UnfocusedAlpha,
                         )
                     },
                 ),

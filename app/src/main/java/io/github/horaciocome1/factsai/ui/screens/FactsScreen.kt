@@ -26,11 +26,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.annotation.Destination
 import io.github.horaciocome1.factsai.ui.theme.FactsAITheme
 
 @OptIn(ExperimentalFoundationApi::class)
-@Destination
 @Composable
 fun FactsScreen(
     topic: String,
@@ -38,6 +36,9 @@ fun FactsScreen(
 ) {
     val facts by viewModel.facts.collectAsStateWithLifecycle()
     val loading by viewModel.loading.collectAsStateWithLifecycle()
+    val jumpToIndex by viewModel.jumpToIndex.collectAsStateWithLifecycle(
+        initialValue = null,
+    )
 
     val pagerState = rememberPagerState()
 
@@ -52,10 +53,32 @@ fun FactsScreen(
         }
     }
 
+    LaunchedEffect(jumpToIndex) {
+        if (jumpToIndex != null) {
+            pagerState.animateScrollToPage(jumpToIndex!!)
+        }
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.surface,
     ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            AnimatedVisibility(
+                visible = facts.isEmpty(),
+                modifier = Modifier
+                    .height(16.dp)
+                    .width(16.dp),
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = 2.dp,
+                )
+            }
+        }
         VerticalPager(
             pageCount = facts.size,
             state = pagerState,

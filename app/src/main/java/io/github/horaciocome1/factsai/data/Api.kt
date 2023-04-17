@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface Api {
 
-    val facts: Flow<List<String>>
+    val facts: Flow<Pair<List<String>, Boolean>>
 
     suspend fun registerInstallation(installationId: String): Result
 

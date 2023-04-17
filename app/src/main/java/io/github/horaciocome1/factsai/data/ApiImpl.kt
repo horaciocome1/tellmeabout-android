@@ -15,8 +15,10 @@ class ApiImpl @Inject constructor(
     private val coroutineContext: CoroutineContext,
 ) : Api {
 
-    private val _facts = MutableSharedFlow<List<String>>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    private val _facts = MutableSharedFlow<Pair<List<String>, Boolean>>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     override val facts = _facts.asSharedFlow()
+
+    private var currentTopic = ""
 
     override suspend fun registerInstallation(installationId: String): Api.Result {
         Timber.v("registerInstallation installationId=$installationId")
@@ -69,7 +71,8 @@ class ApiImpl @Inject constructor(
         }
 
         val facts = (data["facts"] as? List<*>)?.filterIsInstance<String>() ?: return Api.Result.Failure("Failed to get facts")
-        _facts.emit(value = facts)
+        _facts.emit(value = facts to (topic != currentTopic))
+        currentTopic = topic
 
         return Api.Result.Success(facts)
     }

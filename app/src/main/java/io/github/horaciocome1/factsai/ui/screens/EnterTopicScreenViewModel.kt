@@ -10,8 +10,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.horaciocome1.factsai.data.Api
 import io.github.horaciocome1.factsai.data.AuthController
 import io.github.horaciocome1.factsai.data.PreferencesHelper
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -38,8 +40,8 @@ class EnterTopicScreenViewModel @Inject constructor(
     private val _error = MutableStateFlow(false)
     val error = _error.asStateFlow()
 
-    private val _factsGenerated = MutableStateFlow(false)
-    val factsGenerated = _factsGenerated.asStateFlow()
+    private val _factsGenerated = MutableSharedFlow<Boolean>()
+    val factsGenerated = _factsGenerated.asSharedFlow()
 
     val userSignedIn = authController.signedIn.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
