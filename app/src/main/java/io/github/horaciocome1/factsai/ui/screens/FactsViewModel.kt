@@ -3,6 +3,8 @@ package io.github.horaciocome1.factsai.ui.screens
 import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.perf.ktx.trace
+import com.google.firebase.perf.metrics.AddTrace
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.horaciocome1.factsai.data.Api
 import io.github.horaciocome1.factsai.data.PreferencesHelper
@@ -52,23 +54,26 @@ class FactsViewModel @Inject constructor(
         }
     }
 
+    @AddTrace(name = "FactsViewModel:onFactRead")
     fun onFactRead(index: Int, topic: String) {
         Timber.i("onFactRead index=$index topic=$topic lastIndexBeforeNextGeneration=$lastIndexBeforeNextGeneration")
         val remainingUnreadFacts = _facts.value.lastIndex - index
         if (remainingUnreadFacts < 5 && generateFactsJob?.isActive != true) {
             lastIndexBeforeNextGeneration = _facts.value.lastIndex
             generateFactsJob = viewModelScope.launch {
-                _loading.value = true
+                trace("FactsViewModel:generateFacts") {
+                    _loading.value = true
 
-                val installationId = preferencesHelper.getString(Api.Constants.KEY_INSTALLATION_ID)
-                if (installationId == null) {
-                    Timber.w("onFactRead installationId is null")
+                    val installationId = preferencesHelper.getString(Api.Constants.KEY_INSTALLATION_ID)
+                    if (installationId == null) {
+                        Timber.w("onFactRead installationId is null")
+                        _loading.value = false
+                        return@launch
+                    }
+
+                    api.generateFacts(installationId, topic, Locale.current.toLanguageTag(), 20, 0.6f)
                     _loading.value = false
-                    return@launch
                 }
-
-                api.generateFacts(installationId, topic, Locale.current.toLanguageTag(), 20, 0.6f)
-                _loading.value = false
             }
         }
     }

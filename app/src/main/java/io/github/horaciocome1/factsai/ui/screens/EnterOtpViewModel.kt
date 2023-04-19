@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.perf.FirebasePerformance
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.horaciocome1.factsai.data.AuthController
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,6 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class EnterOtpViewModel @Inject constructor(
     private val authController: AuthController,
+    performance: FirebasePerformance,
 ) : ViewModel() {
 
     val digits = List(6) { mutableStateOf("") }
@@ -32,6 +34,8 @@ class EnterOtpViewModel @Inject constructor(
 
     private val _codeValidated = MutableSharedFlow<Boolean>()
     val codeValidated = _codeValidated.asSharedFlow()
+
+    private val verificationTrace = performance.newTrace("EnterOtpViewModel:validateCode")
 
     init {
         viewModelScope.launch {
@@ -54,6 +58,8 @@ class EnterOtpViewModel @Inject constructor(
                     }
                     else -> Unit
                 }
+                verificationTrace.putAttribute("result", result?.name.toString())
+                verificationTrace.stop()
             }
         }
         combine(flows = digits.map { snapshotFlow { it.value } }) {
@@ -63,6 +69,7 @@ class EnterOtpViewModel @Inject constructor(
 
     fun validateCode() {
         Timber.i("validateCode digits=$digits")
+        verificationTrace.start()
         _loading.value = true
         _error.value = false to ""
         val code = digits.joinToString("") { it.value }

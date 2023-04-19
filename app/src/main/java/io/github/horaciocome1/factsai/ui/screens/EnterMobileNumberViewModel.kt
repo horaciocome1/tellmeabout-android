@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.perf.FirebasePerformance
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.horaciocome1.factsai.data.AuthController
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,6 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class EnterMobileNumberViewModel @Inject constructor(
     private val authController: AuthController,
+    performance: FirebasePerformance,
 ) : ViewModel() {
 
     companion object {
@@ -37,6 +39,8 @@ class EnterMobileNumberViewModel @Inject constructor(
 
     private val _codeSent = MutableSharedFlow<Boolean>()
     val codeSent = _codeSent.asSharedFlow()
+
+    private val verificationTrace = performance.newTrace("EnterMobileNumberViewModel:sendVerificationCode")
 
     init {
         Timber.i("init")
@@ -62,6 +66,8 @@ class EnterMobileNumberViewModel @Inject constructor(
                     }
                     else -> Unit
                 }
+                verificationTrace.putAttribute("result", result?.name.toString())
+                verificationTrace.stop()
             }
         }
     }
@@ -81,6 +87,7 @@ class EnterMobileNumberViewModel @Inject constructor(
 
     fun sendVerificationCode(activity: Activity) {
         Timber.i("sendVerificationCode mobileNumber=$mobileNumber")
+        verificationTrace.start()
         _loading.value = true
         _error.value = false to ""
         authController.sendVerificationCode(activity, mobileNumber)

@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.perf.ktx.trace
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.horaciocome1.factsai.data.Api
 import io.github.horaciocome1.factsai.data.AuthController
@@ -61,26 +62,29 @@ class EnterTopicScreenViewModel @Inject constructor(
     fun generateFacts() {
         Timber.i("generateFacts")
         viewModelScope.launch {
-            _loading.value = true
+            trace("EnterTopicScreenViewModel:generateFacts") {
+                _loading.value = true
 
-            val installationId = preferencesHelper.getString(Api.Constants.KEY_INSTALLATION_ID)
-            if (installationId == null) {
-                Timber.w("generateFacts installationId is null")
-                _error.value = true
-                _loading.value = false
-                return@launch
-            }
-
-            when (val result = api.generateFacts(installationId, topic, Locale.current.toLanguageTag(), 4, 0f)) {
-                is Api.Result.Failure -> {
-                    Timber.e("generateFacts error message=${result.errorMessage}")
+                val installationId = preferencesHelper.getString(Api.Constants.KEY_INSTALLATION_ID)
+                if (installationId == null) {
+                    Timber.w("generateFacts installationId is null")
                     _error.value = true
+                    _loading.value = false
+                    return@launch
                 }
-                is Api.Result.Success<*> -> {
-                    _factsGenerated.emit(value = true)
+
+                when (val result = api.generateFacts(installationId, topic, Locale.current.toLanguageTag(), 4, 0f)) {
+                    is Api.Result.Failure -> {
+                        Timber.e("generateFacts error message=${result.errorMessage}")
+                        _error.value = true
+                    }
+                    is Api.Result.Success<*> -> {
+                        _factsGenerated.emit(value = true)
+                    }
                 }
+
+                _loading.value = false
             }
-            _loading.value = false
         }
     }
 }

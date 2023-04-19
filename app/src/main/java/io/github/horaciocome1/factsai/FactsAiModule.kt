@@ -5,6 +5,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.perf.FirebasePerformance
+import com.google.firebase.perf.ktx.performance
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -48,4 +50,8 @@ object FactsAiModule {
     @Provides
     @Singleton
     fun provideAuthController(impl: AuthControllerImpl): AuthController = impl
+
+    @Provides
+    @Singleton
+    fun providePerformance(): FirebasePerformance = Firebase.performance
 }
