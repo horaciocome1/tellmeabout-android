@@ -1,5 +1,7 @@
 package io.github.horaciocome1.factsai
 
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.functions.FirebaseFunctions
@@ -54,4 +56,8 @@ object FactsAiModule {
     @Provides
     @Singleton
     fun providePerformance(): FirebasePerformance = Firebase.performance
+
+    @Provides
+    @Singleton
+    fun provideAnalytics(): FirebaseAnalytics = Firebase.analytics
 }

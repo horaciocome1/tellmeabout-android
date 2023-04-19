@@ -2,7 +2,6 @@ package io.github.horaciocome1.factsai.data
 
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.perf.FirebasePerformance
-import com.google.firebase.perf.metrics.AddTrace
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -26,7 +25,6 @@ class ApiImpl @Inject constructor(
     private val registerInstallationTrace = performance.newTrace("Api:registerInstallation")
     private val generateFactsTrace = performance.newTrace("Api:generateFacts")
 
-    @AddTrace(name = "Api:registerInstallation")
     override suspend fun registerInstallation(installationId: String): Api.Result {
         Timber.v("registerInstallation installationId=$installationId")
         registerInstallationTrace.start()
@@ -68,7 +66,6 @@ class ApiImpl @Inject constructor(
         return Api.Result.Success(Unit)
     }
 
-    @AddTrace(name = "Api:generateFacts")
     override suspend fun generateFacts(installationId: String, topic: String, languageTag: String, count: Int, temperature: Float): Api.Result {
         Timber.v("generateFacts installationId=$installationId topic=$topic languageTag=$languageTag count=$count temperature=$temperature")
         generateFactsTrace.start()

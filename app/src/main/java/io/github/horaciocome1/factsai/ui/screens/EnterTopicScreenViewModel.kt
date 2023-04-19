@@ -6,13 +6,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.perf.ktx.trace
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.horaciocome1.factsai.data.Api
 import io.github.horaciocome1.factsai.data.AuthController
 import io.github.horaciocome1.factsai.data.PreferencesHelper
+import io.github.horaciocome1.factsai.util.AnalyticsEvent
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -24,6 +29,7 @@ class EnterTopicScreenViewModel @Inject constructor(
     private val api: Api,
     private val preferencesHelper: PreferencesHelper,
     authController: AuthController,
+    private val analytics: FirebaseAnalytics,
 ) : ViewModel() {
 
     companion object {
@@ -39,8 +45,8 @@ class EnterTopicScreenViewModel @Inject constructor(
     private val _error = MutableStateFlow(false)
     val error = _error.asStateFlow()
 
-    private val _factsGenerated = MutableStateFlow(false)
-    val factsGenerated = _factsGenerated.asStateFlow()
+    private val _factsGenerated = MutableSharedFlow<Boolean>()
+    val factsGenerated = _factsGenerated.asSharedFlow()
 
     val userSignedIn = authController.signedIn.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
@@ -75,14 +81,33 @@ class EnterTopicScreenViewModel @Inject constructor(
                     is Api.Result.Failure -> {
                         Timber.e("generateFacts error message=${result.errorMessage}")
                         _error.value = true
+                        analytics.logEvent(AnalyticsEvent.GenerateFactsFailed.name) {
+                            param("topic", topic)
+                            param("languageTag", Locale.current.toLanguageTag())
+                            param("factsCount", 4)
+                            param("factsTemperature", 0)
+                            param("errorMessage", result.errorMessage)
+                        }
                     }
                     is Api.Result.Success<*> -> {
                         _factsGenerated.emit(value = true)
+                        analytics.logEvent(AnalyticsEvent.GenerateFactsSucceeded.name) {
+                            param("topic", topic)
+                            param("languageTag", Locale.current.toLanguageTag())
+                            param("factsCount", 4)
+                            param("factsTemperature", 0)
+                        }
                     }
                 }
 
                 _loading.value = false
             }
+        }
+        analytics.logEvent(AnalyticsEvent.GenerateFactsAttemptedWithNewTopic.name) {
+            param("topic", topic)
+            param("languageTag", Locale.current.toLanguageTag())
+            param("factsCount", 4)
+            param("factsTemperature", 0)
         }
     }
 }
