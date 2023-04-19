@@ -3,6 +3,7 @@ package io.github.horaciocome1.factsai.data
 import android.app.Activity
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.PhoneAuthCredential
@@ -12,6 +13,7 @@ import com.google.firebase.perf.ktx.trace
 import com.google.firebase.perf.metrics.AddTrace
 import io.github.horaciocome1.factsai.data.AuthController.Companion.KEY_INSTALLATION_REGISTERED
 import io.github.horaciocome1.factsai.data.AuthController.Companion.TIMEOUT_OTP_VERIFICATION_IN_SECONDS
+import io.github.horaciocome1.factsai.util.AnalyticsEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -30,6 +32,7 @@ class AuthControllerImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val preferencesHelper: PreferencesHelper,
     private val api: Api,
+    private val analytics: FirebaseAnalytics,
 ) : AuthController, PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
     private val coroutineScope = CoroutineScope(coroutineContext)
@@ -65,6 +68,8 @@ class AuthControllerImpl @Inject constructor(
             .setCallbacks(this)
             .build()
         PhoneAuthProvider.verifyPhoneNumber(options)
+
+        analytics.logEvent(AnalyticsEvent.UserSignInAttempted.name, null)
     }
 
     override fun verifyCode(code: String) {
@@ -99,6 +104,7 @@ class AuthControllerImpl @Inject constructor(
             _verificationResult.emit(AuthController.VerificationResult.VerificationCompleted)
         }
         onAuthStateChanged(auth)
+        analytics.logEvent(AnalyticsEvent.UserSignInSucceeded.name, null)
     }
 
     override fun onVerificationFailed(exception: FirebaseException) {
@@ -116,6 +122,7 @@ class AuthControllerImpl @Inject constructor(
                 }
             }
         }
+        analytics.logEvent(AnalyticsEvent.UserSignInFailed.name, null)
     }
 
     override fun onCodeAutoRetrievalTimeOut(verificationId: String) {
@@ -138,12 +145,15 @@ class AuthControllerImpl @Inject constructor(
             auth.currentUser?.linkWithCredential(credential)?.await()
             _verificationResult.emit(AuthController.VerificationResult.VerificationCompleted)
             onAuthStateChanged(auth)
+            analytics.logEvent(AnalyticsEvent.UserSignInSucceeded.name, null)
         } catch (exception: FirebaseAuthInvalidCredentialsException) {
             Timber.e("signInWithPhoneAuthCredential", exception)
             _verificationResult.emit(AuthController.VerificationResult.InvalidVerificationCode)
+            analytics.logEvent(AnalyticsEvent.UserSignInFailed.name, null)
         } catch (exception: Exception) {
             Timber.e("signInWithPhoneAuthCredential", exception)
             _verificationResult.emit(AuthController.VerificationResult.Failure)
+            analytics.logEvent(AnalyticsEvent.UserSignInFailed.name, null)
         }
     }
 

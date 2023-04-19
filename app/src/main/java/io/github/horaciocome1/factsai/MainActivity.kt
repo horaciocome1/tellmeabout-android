@@ -11,21 +11,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.perf.metrics.AddTrace
 import com.ramcosta.composedestinations.DestinationsNavHost
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.horaciocome1.factsai.ui.screens.NavGraphs
 import io.github.horaciocome1.factsai.ui.theme.FactsAITheme
+import io.github.horaciocome1.factsai.util.AppStateAnalytics
+import io.github.horaciocome1.factsai.util.AppStateAnalyticsImpl
 import timber.log.Timber
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), AppStateAnalytics by AppStateAnalyticsImpl() {
+
+    @Inject
+    lateinit var analytics: FirebaseAnalytics
 
     @AddTrace(name = "MainActivity:onCreate")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         Timber.i("onCreate")
+        registerAppStateAnalytics(this, analytics)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
