@@ -8,6 +8,8 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.perf.ktx.trace
+import com.google.firebase.perf.metrics.AddTrace
 import io.github.horaciocome1.factsai.data.AuthController.Companion.KEY_INSTALLATION_REGISTERED
 import io.github.horaciocome1.factsai.data.AuthController.Companion.TIMEOUT_OTP_VERIFICATION_IN_SECONDS
 import kotlinx.coroutines.CoroutineScope
@@ -49,6 +51,7 @@ class AuthControllerImpl @Inject constructor(
         }
     }
 
+    @AddTrace(name = "AuthController:sendVerificationCode")
     override fun sendVerificationCode(activity: Activity, mobileNumber: String) {
         Timber.v("sendVerificationCode mobileNumber=$mobileNumber")
         coroutineScope.launch {
@@ -67,17 +70,19 @@ class AuthControllerImpl @Inject constructor(
     override fun verifyCode(code: String) {
         Timber.v("verifyCode code=$code")
         coroutineScope.launch {
-            _verificationResult.emit(null)
+            trace(name = "AuthController:verifyCode") {
+                _verificationResult.emit(null)
 
-            val id = verificationId
-            if (id == null) {
-                Timber.w("verifyCode verificationId is null")
-                _verificationResult.emit(AuthController.VerificationResult.Failure)
-                return@launch
+                val id = verificationId
+                if (id == null) {
+                    Timber.w("verifyCode verificationId is null")
+                    _verificationResult.emit(AuthController.VerificationResult.Failure)
+                    return@launch
+                }
+
+                val credential = PhoneAuthProvider.getCredential(id, code)
+                signInWithPhoneAuthCredential(credential)
             }
-
-            val credential = PhoneAuthProvider.getCredential(id, code)
-            signInWithPhoneAuthCredential(credential)
         }
     }
 
@@ -126,6 +131,7 @@ class AuthControllerImpl @Inject constructor(
         this.token = token
     }
 
+    @AddTrace(name = "AuthController:signInWithPhoneAuthCredential")
     private suspend fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
         Timber.i("signInWithPhoneAuthCredential credential=$credential")
         try {
@@ -141,6 +147,7 @@ class AuthControllerImpl @Inject constructor(
         }
     }
 
+    @AddTrace(name = "AuthController:checkInstallation")
     private suspend fun checkInstallation() {
         Timber.i("checkInstallation")
         if (preferencesHelper.getString(Api.Constants.KEY_INSTALLATION_ID).isNullOrBlank()) {
