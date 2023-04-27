@@ -4,11 +4,13 @@ import kotlinx.coroutines.flow.Flow
 
 interface Api {
 
-    val facts: Flow<List<String>>
+    val facts: Flow<Pair<List<String>, Boolean>>
 
     suspend fun registerInstallation(installationId: String): Result
 
     suspend fun generateFacts(installationId: String, topic: String, languageTag: String, count: Int, temperature: Float): Result
+
+    suspend fun generateFacts(installationId: String, languageTag: String, count: Int, temperature: Float): Result
 
     sealed interface Result {
         data class Failure(val errorMessage: String) : Result

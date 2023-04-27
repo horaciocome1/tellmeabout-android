@@ -11,24 +11,20 @@ import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.perf.ktx.trace
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.horaciocome1.factsai.data.Api
-import io.github.horaciocome1.factsai.data.AuthController
 import io.github.horaciocome1.factsai.data.PreferencesHelper
 import io.github.horaciocome1.factsai.util.AnalyticsEvent
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class EnterTopicScreenViewModel @Inject constructor(
+class EnterTopicViewModel @Inject constructor(
     private val api: Api,
     private val preferencesHelper: PreferencesHelper,
-    authController: AuthController,
     private val analytics: FirebaseAnalytics,
 ) : ViewModel() {
 
@@ -48,13 +44,11 @@ class EnterTopicScreenViewModel @Inject constructor(
     private val _factsGenerated = MutableSharedFlow<Boolean>()
     val factsGenerated = _factsGenerated.asSharedFlow()
 
-    val userSignedIn = authController.signedIn.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
-
     init {
         Timber.i("init")
     }
 
-    fun onTopicChanged(topic: String) {
+    fun onTopicChange(topic: String) {
         Timber.i("onTopicChanged topic=$topic")
         if (topic.length > MAX_TOPIC_LENGTH) {
             Timber.w("onTopicChanged topic=$topic is too long")
@@ -77,7 +71,7 @@ class EnterTopicScreenViewModel @Inject constructor(
                     return@launch
                 }
 
-                when (val result = api.generateFacts(installationId, topic, Locale.current.toLanguageTag(), 4, 0f)) {
+                when (val result = api.generateFacts(installationId, topic.trim(), Locale.current.toLanguageTag(), 4, 0f)) {
                     is Api.Result.Failure -> {
                         Timber.e("generateFacts error message=${result.errorMessage}")
                         _error.value = true

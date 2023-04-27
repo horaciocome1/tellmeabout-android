@@ -15,7 +15,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
@@ -37,7 +36,6 @@ class FactsViewModel @Inject constructor(
     val loading = _loading.asStateFlow()
 
     private val _jumpToIndex = MutableSharedFlow<Int>()
-    val jumpToIndex = _jumpToIndex.asSharedFlow()
 
     var lastIndexBeforeNextGeneration: Int? = null
         private set
@@ -62,8 +60,8 @@ class FactsViewModel @Inject constructor(
     }
 
     @AddTrace(name = "FactsViewModel:onFactRead")
-    fun onFactRead(index: Int, topic: String) {
-        Timber.i("onFactRead index=$index topic=$topic lastIndexBeforeNextGeneration=$lastIndexBeforeNextGeneration")
+    fun onFactRead(index: Int) {
+        Timber.i("onFactRead index=$index  lastIndexBeforeNextGeneration=$lastIndexBeforeNextGeneration")
         onFactReadingStarted()
         val remainingUnreadFacts = _facts.value.lastIndex - index
         if (remainingUnreadFacts < 20 && generateFactsJob?.isActive != true) {
@@ -79,11 +77,10 @@ class FactsViewModel @Inject constructor(
                         return@launch
                     }
 
-                    when (val result = api.generateFacts(installationId, topic, Locale.current.toLanguageTag(), 20, 0.6f)) {
+                    when (val result = api.generateFacts(installationId, Locale.current.toLanguageTag(), 20, 0.6f)) {
                         is Api.Result.Success<*> -> {
                             Timber.i("onFactRead generateFacts success")
                             analytics.logEvent(AnalyticsEvent.GenerateFactsSucceeded.name) {
-                                param("topic", topic)
                                 param("languageTag", Locale.current.toLanguageTag())
                                 param("factsCount", 20)
                                 param("factsTemperature", 0.6)
@@ -92,7 +89,6 @@ class FactsViewModel @Inject constructor(
                         is Api.Result.Failure -> {
                             Timber.w("onFactRead generateFacts failure errorMessage=${result.errorMessage}")
                             analytics.logEvent(AnalyticsEvent.GenerateFactsFailed.name) {
-                                param("topic", topic)
                                 param("languageTag", Locale.current.toLanguageTag())
                                 param("factsCount", 20)
                                 param("factsTemperature", 0.6)
@@ -104,7 +100,6 @@ class FactsViewModel @Inject constructor(
                 }
             }
             analytics.logEvent(AnalyticsEvent.GenerateFactsAttempted.name) {
-                param("topic", topic)
                 param("languageTag", Locale.current.toLanguageTag())
                 param("factsCount", 20)
                 param("factsTemperature", 0.6)
@@ -112,7 +107,6 @@ class FactsViewModel @Inject constructor(
         }
         facts.value.getOrNull(index - 1)?.let { fact ->
             analytics.logEvent(AnalyticsEvent.FactRead.name) {
-                param("topic", topic)
                 param("fact", fact)
                 param("readingDuration", readingDuration)
             }

@@ -66,6 +66,11 @@ class ApiImpl @Inject constructor(
         return Api.Result.Success(Unit)
     }
 
+    override suspend fun generateFacts(installationId: String, languageTag: String, count: Int, temperature: Float): Api.Result {
+        Timber.v("generateFacts installationId=$installationId languageTag=$languageTag count=$count temperature=$temperature")
+        return generateFacts(installationId, currentTopic, languageTag, count, temperature)
+    }
+
     override suspend fun generateFacts(installationId: String, topic: String, languageTag: String, count: Int, temperature: Float): Api.Result {
         Timber.v("generateFacts installationId=$installationId topic=$topic languageTag=$languageTag count=$count temperature=$temperature")
         generateFactsTrace.start()
