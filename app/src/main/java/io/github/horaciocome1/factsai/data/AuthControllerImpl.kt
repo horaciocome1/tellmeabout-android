@@ -2,6 +2,7 @@ package io.github.horaciocome1.factsai.data
 
 import android.app.Activity
 import com.google.firebase.FirebaseException
+import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
@@ -15,9 +16,12 @@ import io.github.horaciocome1.factsai.data.AuthController.Companion.KEY_INSTALLA
 import io.github.horaciocome1.factsai.data.AuthController.Companion.TIMEOUT_OTP_VERIFICATION_IN_SECONDS
 import io.github.horaciocome1.factsai.util.AnalyticsEvent
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -43,14 +47,30 @@ class AuthControllerImpl @Inject constructor(
     private val _signedIn = MutableSharedFlow<Boolean>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     override val signedIn = _signedIn.asSharedFlow().distinctUntilChanged()
 
+    private val _initializing = MutableSharedFlow<Boolean>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    override val initializing = _initializing.asSharedFlow().distinctUntilChanged()
+
     private var verificationId: String? = null
     private var token: PhoneAuthProvider.ForceResendingToken? = null
+
+    private var setupJob: Job? = null
 
     init {
         Timber.i("init")
         auth.addAuthStateListener(this)
-        coroutineScope.launch {
-            checkInstallation()
+    }
+
+    override fun setup() {
+        val previousJob = setupJob
+        setupJob = coroutineScope.launch {
+            previousJob?.cancelAndJoin()
+            api.hasInternetConnection.collectLatest { hasInternetConnection ->
+                _initializing.emit(hasInternetConnection)
+                if (hasInternetConnection) {
+                    checkInstallation()
+                    _initializing.emit(false)
+                }
+            }
         }
     }
 
@@ -169,7 +189,11 @@ class AuthControllerImpl @Inject constructor(
         }
         if (auth.currentUser == null) {
             Timber.w("auth.currentUser is null")
-            auth.signInAnonymously().await()
+            try {
+                auth.signInAnonymously().await()
+            } catch (exception: FirebaseNetworkException) {
+                Timber.e("checkInstallation exception=$exception")
+            }
         }
         if (!preferencesHelper.getBoolean(KEY_INSTALLATION_REGISTERED)) {
             Timber.w("installation is not registered")

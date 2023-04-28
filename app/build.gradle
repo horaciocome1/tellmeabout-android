@@ -23,8 +23,8 @@ android {
         applicationId "io.github.horaciocome1.factsai"
         minSdk 24
         targetSdk 33
-        versionCode 5
-        versionName "0.0.1.202304.27a"
+        versionCode 7
+        versionName "0.0.1.202304.28b"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

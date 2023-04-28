@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name" translatable="false">Tellmeabout</string>
     <string name="tell_me_about">Tell me\nabout…</string>
     <string name="enter_a_topic_to_get_started">Enter a topic to get started.</string>
     <string name="for_example">For example</string>
@@ -15,4 +14,7 @@
     <string name="verify_otp">Verify OTP</string>
     <string name="enter_otp_sent_to">Enter the OTP sent to</string>
     <string name="login">Log in</string>
+    <string name="error_no_internet">No internet connection. Please check your connection and try again.</string>
+    <string name="error_could_not_reach_server">An error occurred while processing your request. Please try again later or contact support if the issue persists.</string>
+    <string name="error_something_went_wrong">An error has occurred. Please try again later or contact support if the issue persists.</string>
 </resources>

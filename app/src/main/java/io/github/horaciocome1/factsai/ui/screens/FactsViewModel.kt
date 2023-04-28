@@ -1,5 +1,6 @@
 package io.github.horaciocome1.factsai.ui.screens
 
+import android.content.Context
 import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -60,7 +61,7 @@ class FactsViewModel @Inject constructor(
     }
 
     @AddTrace(name = "FactsViewModel:onFactRead")
-    fun onFactRead(index: Int) {
+    fun onFactRead(index: Int, context: Context) {
         Timber.i("onFactRead index=$index  lastIndexBeforeNextGeneration=$lastIndexBeforeNextGeneration")
         onFactReadingStarted()
         val remainingUnreadFacts = _facts.value.lastIndex - index
@@ -87,12 +88,12 @@ class FactsViewModel @Inject constructor(
                             }
                         }
                         is Api.Result.Failure -> {
-                            Timber.w("onFactRead generateFacts failure errorMessage=${result.errorMessage}")
+                            Timber.w("onFactRead generateFacts failure errorMessage=${context.getString(result.messageRes)}")
                             analytics.logEvent(AnalyticsEvent.GenerateFactsFailed.name) {
                                 param("languageTag", Locale.current.toLanguageTag())
                                 param("factsCount", 20)
                                 param("factsTemperature", 0.6)
-                                param("errorMessage", result.errorMessage)
+                                param("errorMessage", context.getString(result.messageRes))
                             }
                         }
                     }

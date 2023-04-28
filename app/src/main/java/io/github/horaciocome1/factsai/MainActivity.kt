@@ -13,6 +13,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -66,6 +67,8 @@ class MainActivity : ComponentActivity(), AppStateAnalytics by AppStateAnalytics
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.surface,
                 ) {
+                    val context = LocalContext.current
+
                     DestinationsNavHost(
                         navGraph = NavGraphs.root,
                         modifier = Modifier.fillMaxSize(),
@@ -90,7 +93,9 @@ class MainActivity : ComponentActivity(), AppStateAnalytics by AppStateAnalytics
                                 error = error,
                                 topic = viewModel.topic,
                                 onTopicChange = viewModel::onTopicChange,
-                                generateFacts = viewModel::generateFacts,
+                                generateFacts = {
+                                    viewModel.generateFacts(context)
+                                },
                             )
                         }
 
@@ -103,7 +108,7 @@ class MainActivity : ComponentActivity(), AppStateAnalytics by AppStateAnalytics
                             val loading by viewModel.loading.collectAsStateWithLifecycle()
 
                             LaunchedEffect(pagerState.currentPage) {
-                                viewModel.onFactRead(pagerState.currentPage)
+                                viewModel.onFactRead(pagerState.currentPage, context)
                             }
 
                             LaunchedEffect(loading) {

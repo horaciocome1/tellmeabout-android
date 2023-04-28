@@ -18,7 +18,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,7 +46,7 @@ import io.github.horaciocome1.factsai.util.Constants.UnfocusedAlpha
 @Destination
 @Composable
 fun EnterTopicScreen(
-    error: Boolean = false,
+    error: Pair<Boolean, Int> = Pair(false, R.string.error_something_went_wrong),
     loading: Boolean = false,
     topic: String = "",
     onTopicChange: (String) -> Unit = {
@@ -56,10 +55,6 @@ fun EnterTopicScreen(
     },
 ) {
     val focusManager = LocalFocusManager.current
-
-    LaunchedEffect(error) {
-        // TODO: show error
-    }
 
     Background(onClick = focusManager::clearFocus) {
         Column(
@@ -82,6 +77,16 @@ fun EnterTopicScreen(
                 singleLine = true,
                 supportingText = {
                     val annotatedString = buildAnnotatedString {
+                        if (error.first) {
+                            withStyle(
+                                style = SpanStyle(
+                                    color = MaterialTheme.colorScheme.error,
+                                ),
+                            ) {
+                                append(stringResource(id = error.second))
+                            }
+                            return@buildAnnotatedString
+                        }
                         append(stringResource(id = R.string.enter_a_topic_to_get_started))
                         append(" ")
                         append(stringResource(id = R.string.for_example))
@@ -141,12 +146,13 @@ fun EnterTopicScreen(
                     ),
                 ),
                 enabled = !loading,
+                isError = error.first,
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Go,
                 ),
                 keyboardActions = KeyboardActions(
                     onGo = {
-                        if (topic.isNotBlank()) {
+                        if (topic.isNotBlank() && !error.first) {
                             generateFacts()
                         }
                         focusManager.clearFocus()
@@ -163,7 +169,7 @@ fun EnterTopicScreen(
             Spacer(modifier = Modifier.height(100.dp))
             Button(
                 onClick = generateFacts,
-                enabled = !loading && topic.isNotBlank(),
+                enabled = !error.first && !loading && topic.isNotBlank(),
             ) {
                 Text(
                     text = stringResource(id = R.string.get_started),
@@ -192,7 +198,7 @@ fun EnterTopicScreenPreview() {
     FactsAITheme(darkTheme = true) {
         EnterTopicScreen(
             loading = false,
-            error = false,
+            error = false to R.string.error_something_went_wrong,
             topic = topic,
             onTopicChange = { topic = it },
             generateFacts = {

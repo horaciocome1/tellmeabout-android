@@ -16,6 +16,9 @@ interface AuthController : AuthStateListener {
 
     val verificationResult: Flow<VerificationResult?>
     val signedIn: Flow<Boolean>
+    val initializing: Flow<Boolean>
+
+    fun setup()
 
     fun sendVerificationCode(activity: Activity, mobileNumber: String)
 
