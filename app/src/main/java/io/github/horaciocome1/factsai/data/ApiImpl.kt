@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import android.os.Build
 import androidx.core.content.ContextCompat.getSystemService
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.functions.FirebaseFunctions
@@ -51,10 +52,18 @@ class ApiImpl @Inject constructor(
             .build()
         val connectivityManager = getSystemService(context, ConnectivityManager::class.java) as ConnectivityManager
         connectivityManager.requestNetwork(networkRequest, this)
-        if (connectivityManager.activeNetwork != null) {
-            onAvailable(connectivityManager.activeNetwork!!)
-        } else {
-            onUnavailable()
+        when {
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.M -> {
+                coroutineScope.launch {
+                    _hasInternetConnection.emit(true)
+                }
+            }
+            connectivityManager.activeNetwork != null -> {
+                onAvailable(connectivityManager.activeNetwork!!)
+            }
+            else -> {
+                onUnavailable()
+            }
         }
     }
 

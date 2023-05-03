@@ -13,7 +13,6 @@
     <string name="get_otp">Get OTP</string>
     <string name="verify_otp">Verify OTP</string>
     <string name="enter_otp_sent_to">Enter the OTP sent to</string>
-    <string name="login">Log in</string>
     <string name="error_no_internet">No internet connection. Please check your connection and try again.</string>
     <string name="error_could_not_reach_server">An error occurred while processing your request. Please try again later or contact support if the issue persists.</string>
     <string name="error_something_went_wrong">An error has occurred. Please try again later or contact support if the issue persists.</string>

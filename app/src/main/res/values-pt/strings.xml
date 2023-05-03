@@ -12,7 +12,6 @@
     <string name="get_otp">Continuar</string>
     <string name="verify_otp">Verificar</string>
     <string name="enter_otp_sent_to">Introduza o código enviado para</string>
-    <string name="login">Iniciar sessão</string>
     <string name="error_no_internet">Sem ligação à internet. Por favor, verifique a sua ligação e tente novamente.</string>
     <string name="error_could_not_reach_server">Ocorreu um erro ao processar o seu pedido. Por favor, tente novamente mais tarde ou entre em contato com o suporte se o problema persistir.</string>
     <string name="error_something_went_wrong">Ocorreu um erro. Por favor, tente novamente mais tarde ou entre em contato com o suporte se o problema persistir.</string>
