@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.google.firebase.perf.metrics.AddTrace
 import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
 import javax.inject.Inject
@@ -24,6 +25,7 @@ class PreferencesHelperImpl @Inject constructor(@ApplicationContext context: Con
         )
     }
 
+    @AddTrace(name = "PreferencesHelper:edit")
     override fun edit(key: String, value: Any) {
         Timber.i("edit key=$key value=$value")
         when (value) {
@@ -37,6 +39,7 @@ class PreferencesHelperImpl @Inject constructor(@ApplicationContext context: Con
     }
 
     @SuppressLint("ApplySharedPref")
+    @AddTrace(name = "PreferencesHelper:commit")
     override suspend fun commit(key: String, value: Any) {
         Timber.i("edit key=$key value=$value")
         when (value) {
@@ -49,11 +52,13 @@ class PreferencesHelperImpl @Inject constructor(@ApplicationContext context: Con
         }
     }
 
+    @AddTrace(name = "PreferencesHelper:getString")
     override fun getString(key: String): String? {
         Timber.i("getString key=$key")
         return sharedPreferences.getString(key, null)
     }
 
+    @AddTrace(name = "PreferencesHelper:getBoolean")
     override fun getBoolean(key: String): Boolean {
         Timber.i("getBoolean key=$key")
         return sharedPreferences.getBoolean(key, false)
