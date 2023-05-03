@@ -1,6 +1,10 @@
 package io.github.horaciocome1.factsai.ui.screens
 
 import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,12 +16,16 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.horaciocome1.factsai.data.Api
 import io.github.horaciocome1.factsai.data.PreferencesHelper
 import io.github.horaciocome1.factsai.util.AnalyticsEvent
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -38,12 +46,12 @@ class FactsViewModel @Inject constructor(
 
     private val _jumpToIndex = MutableSharedFlow<Int>()
 
-    var lastIndexBeforeNextGeneration: Int? = null
-        private set
-
     private var generateFactsJob: Job? = null
 
-    private var readingDuration = 0L
+    private var readingDuration by mutableStateOf(0L)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val stale = snapshotFlow { readingDuration }.mapLatest { it > 16000 }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
     init {
         Timber.i("init")
@@ -58,15 +66,20 @@ class FactsViewModel @Inject constructor(
                 }
             }
         }
+        viewModelScope.launch {
+            while (true) {
+                delay(1000)
+                readingDuration += 1000
+            }
+        }
     }
 
     @AddTrace(name = "FactsViewModel:onFactRead")
     fun onFactRead(index: Int, context: Context) {
-        Timber.i("onFactRead index=$index  lastIndexBeforeNextGeneration=$lastIndexBeforeNextGeneration")
+        Timber.i("onFactRead index=$index")
         onFactReadingStarted()
         val remainingUnreadFacts = _facts.value.lastIndex - index
         if (remainingUnreadFacts < 20 && generateFactsJob?.isActive != true) {
-            lastIndexBeforeNextGeneration = _facts.value.lastIndex
             generateFactsJob = viewModelScope.launch {
                 trace("FactsViewModel:generateFacts") {
                     _loading.value = true
@@ -114,18 +127,7 @@ class FactsViewModel @Inject constructor(
         }
     }
 
-    fun clearLastIndexBeforeNextGeneration() {
-        Timber.i("clearLastIndexBeforeNextGeneration")
-        lastIndexBeforeNextGeneration = null
-    }
-
     private fun onFactReadingStarted() {
         readingDuration = 0L
-        viewModelScope.launch {
-            while (true) {
-                delay(1000)
-                readingDuration += 1000
-            }
-        }
     }
 }

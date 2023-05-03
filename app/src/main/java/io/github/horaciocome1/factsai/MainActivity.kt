@@ -10,10 +10,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -33,6 +37,7 @@ import io.github.horaciocome1.factsai.ui.screens.destinations.FactsScreenDestina
 import io.github.horaciocome1.factsai.ui.theme.FactsAITheme
 import io.github.horaciocome1.factsai.util.AppStateAnalytics
 import io.github.horaciocome1.factsai.util.AppStateAnalyticsImpl
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -46,6 +51,8 @@ class MainActivity : ComponentActivity(), AppStateAnalytics by AppStateAnalytics
     @AddTrace(name = "MainActivity:onCreate")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        installSplashScreen()
 
         Timber.i("onCreate")
         registerAppStateAnalytics(this, analytics)
@@ -102,26 +109,33 @@ class MainActivity : ComponentActivity(), AppStateAnalytics by AppStateAnalytics
                         composable(FactsScreenDestination) {
                             val viewModel = hiltViewModel<FactsViewModel>()
 
+                            val coroutineScope = rememberCoroutineScope()
                             val pagerState = rememberPagerState()
 
                             val facts by viewModel.facts.collectAsStateWithLifecycle()
                             val loading by viewModel.loading.collectAsStateWithLifecycle()
+                            val stale by viewModel.stale.collectAsStateWithLifecycle()
+
+                            val readingLastFact by remember {
+                                derivedStateOf { pagerState.currentPage == facts.lastIndex }
+                            }
 
                             LaunchedEffect(pagerState.currentPage) {
                                 viewModel.onFactRead(pagerState.currentPage, context)
                             }
 
-                            LaunchedEffect(loading) {
-                                if (pagerState.currentPage == viewModel.lastIndexBeforeNextGeneration && !loading) {
-                                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                                    viewModel.clearLastIndexBeforeNextGeneration()
-                                }
-                            }
-
                             FactsScreen(
                                 pagerState = pagerState,
-                                loading = loading,
+                                showLoading = loading,
+                                showHint = stale && !readingLastFact && !pagerState.isScrollInProgress,
+                                showClose = !pagerState.isScrollInProgress,
                                 facts = facts,
+                                onNextFact = {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                    }
+                                },
+                                onClose = destinationsNavigator::navigateUp,
                             )
                         }
                     }
